@@ -1,0 +1,8 @@
+name: extractevents
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.13
+  - scikit-image
+prefix: C:\Users\fbsacu\AppData\Local\miniconda3\envs\extractevents
