@@ -1,6 +1,6 @@
 # ExtractEvents
 
-ExtractEvents is a Python package for extracting set of useful frames from longer timelapse sequences.
+ExtractEvents is a Python library for extracting set of useful frames from longer timelapse sequences.
 
 ## Installation
 
