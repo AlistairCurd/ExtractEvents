@@ -1,6 +1,6 @@
 """abovethreshold.py
 
-Extract sequences of frames around above threshold-events.
+Extract and save sequences of frames around above-threshold events.
 
 Alistair Curd
 University of Leeds
@@ -18,6 +18,7 @@ from skimage.io import imread, imsave
 
 def get_inputs():
     """ Get CLI inputs."""
+
     parser = argparse.ArgumentParser(
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('-i', '--input-dir',
@@ -26,7 +27,7 @@ def get_inputs():
                         help='Path to input directory.')
     parser.add_argument('-o', '--output-dir',
                         type=str,
-                        default='.//output',
+                        default='./events',
                         help='Path to output directory.')
     parser.add_argument('-t', '--threshold',
                         type=float,
@@ -43,10 +44,11 @@ def get_inputs():
                         default=5,
                         help='The number of frames after a trigger event'
                         ' to include in an extracted sequence.')
+
     return parser.parse_args()
 
 
-def sortimagenames(filename_list):
+def sortimagenames_by_num(filename_list):
     """Sort image filenames by number so that earlier frames come
     before later ones, including 2 before 12, etc.
     
@@ -76,38 +78,42 @@ def sortimagenames(filename_list):
 
 
 def main():
+    """Extract chosen sequences and save."""
     user_inputs = get_inputs()
     input_dir = Path(user_inputs.input_dir)
-    # output_dir = Path(user_inputs.output_dir)
+    output_dir = user_inputs.output_dir
+    if output_dir == './events':
+        output_dir = input_dir / 'events'
+    else:
+        output_dir = Path(output_dir)
     threshold = user_inputs.threshold
     before = user_inputs.before
     after = user_inputs.after
 
     # Get sorted filenames, no extension
-    input_filenames = []
+    filename_list = []
     for child in input_dir.iterdir():
-        input_filenames.append(child.stem)
-    # SORT...
-    # probably with extra function
-    # framenum = re.search(r'(\d+)\.', filename).group()
+        filename_list.append(child.stem)
+    filename_num_dict, filename_list = sortimagenames_by_num(filename_list)
 
-    # Create 3D numpy array height * width * length of input sequence
+    # Load sorted images into image stack
     input_seq = np.zeros(10, 50, 6000)
-    for i, image in enumerate(input_seq):
-        image = imread(input_dir / input_filenames[i] + 'tiff')
+    for i, in enumerate(input_seq):
+        input_seq[i] = imread(input_dir / filename_list[i] + 'tiff')
 
     # Load sorted images into image stack
 
     # Find and save desired sequences
     i = 0
-    while i < len(input_seq): 
-        if image.max() >= threshold:
+    while i < len(input_seq):
+        if input_seq[i].max() >= threshold:
             start_frame = max(i - before, 0)
             last_frame = i + after, len(input_seq)
-            # short_seq = input_seq[start_frame: last_frame + 1]
-            # last_frame_id =
-            # outname = start_frame name - last_frame_id
-            # imsave(output_dir / outname, short_seq)
+            short_seq = input_seq[start_frame: last_frame + 1]
+            start_frame_name = filename_list[start_frame]
+            last_frame_num = filename_num_dict[filename_list[last_frame]]
+            outname = f'{start_frame_name}-{last_frame_num}.tiff'
+            imsave(output_dir / outname, short_seq)
             i = i + after
         else:
             i = i + 1
