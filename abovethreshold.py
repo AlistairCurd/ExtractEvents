@@ -56,6 +56,8 @@ def sortimagenames(filename_list):
             List of filenames.
     
     Returns:
+        filename_num_dict (dict):
+            Keys: filenames, Values: image numbers
         filename_list:
             Sorted list of filenames.
     """
@@ -65,13 +67,12 @@ def sortimagenames(filename_list):
     for filename in filename_list:
         imagenumber = re.search(r'(\d+)\.', filename).group()
         imagenumber = re.search(r'(\d+)', imagenumber).group()
-        # imagenumbers.append(int(imagenumber))
         filename_num_dict[filename] = int(imagenumber)
 
     # Sorted filename list by image number
     filename_list = sorted(filename_num_dict, key=filename_num_dict.get)
-    return filename_list
 
+    return filename_num_dict, filename_list
 
 
 def main():
@@ -98,7 +99,8 @@ def main():
     # Load sorted images into image stack
 
     # Find and save desired sequences
-    for i, image in input_seq:
+    i = 0
+    while i < len(input_seq): 
         if image.max() >= threshold:
             start_frame = max(i - before, 0)
             last_frame = i + after, len(input_seq)
@@ -106,6 +108,9 @@ def main():
             # last_frame_id =
             # outname = start_frame name - last_frame_id
             # imsave(output_dir / outname, short_seq)
+            i = i + after
+        else:
+            i = i + 1
 
 
 if __name__ == '__main__':
