@@ -97,7 +97,7 @@ def sortimagenames_by_num(filename_list):
 def main():
     """Extract chosen sequences and save."""
     # Get and display inputs
-    default_out_dir_arg = '../<input-dir>_events_<params>'
+    default_out_dir_arg = '<parent of input-dir>/<input-dir>_events_<params>'
     user_inputs = get_inputs(default_out_dir_arg)
 
     input_dir = Path(user_inputs.input_dir)
