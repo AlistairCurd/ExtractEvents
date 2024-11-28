@@ -13,6 +13,7 @@ import re
 import sys
 from pathlib import Path
 
+from tqdm import tqdm
 import numpy as np
 from skimage.io import imread, imsave
 
@@ -148,24 +149,32 @@ def main():
     # First get image dimensions
     image0 = imread(input_dir / (filename_list[0] + '.tiff'))
     print(f'Single-image dimensions are: {image0.shape}')
-    input_seq = np.zeros((image0.shape[0], image0.shape[1], len(filename_list)))
-    for i in range(input_seq.shape[2]):
-        input_seq[:,:,i] = imread(input_dir / (filename_list[i] + '.tiff'))
+    input_seq = np.zeros((len(filename_list), image0.shape[0], image0.shape[1]))
+    print('Loading images to find events...')
+    for i in tqdm(range(input_seq.shape[0]), mininterval=1):
+        input_seq[i, :, :] = imread(input_dir / (filename_list[i] + '.tiff'))
 
     # Find and save desired sequences
+    print('\nExtracting events...')
+    progress_bar = tqdm(total=len(filename_list), mininterval=1)
     i = 0
     while i < len(input_seq):
-        if input_seq[i].max() >= threshold:
+        if input_seq[i, :, :].max() >= threshold:
             start_frame = max(i - before, 0)
-            last_frame = i + after, len(input_seq)
-            short_seq = input_seq[start_frame: last_frame + 1]
+            last_frame = min(i + after, len(input_seq))
+            short_seq = input_seq[start_frame : last_frame + 1, :, :]
             start_frame_name = filename_list[start_frame]
             last_frame_num = filename_num_dict[filename_list[last_frame]]
             outname = f'{start_frame_name}-{last_frame_num}.tiff'
             imsave(output_dir / outname, short_seq)
             i = i + after
+            progress_bar.update(after)
         else:
             i = i + 1
+            progress_bar.update(1)
+    progress_bar.close()
+
+    print('\nDone.\n')
 
 
 if __name__ == '__main__':
