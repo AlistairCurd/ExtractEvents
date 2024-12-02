@@ -33,14 +33,31 @@ def get_inputs(default_out_dir_arg):
     ### ADD DESCRIPTION
     ### REQUIRES FILENAMES TO END IN <integer>.tiff
 
-    parser.add_argument('-i', '--input-dir',
+    parser.add_argument('-i', '--input-images-path',
                         type=str,
                         default='.',
-                        help='Path to input directory.')
-    parser.add_argument('-o', '--output-dir',
+                        help='Path to input directory of single images'
+                        ' (directory) or to cached sequence in an image'
+                        ' stack (file).')
+    parser.add_argument('-c', '--cache-sequence',
+                        type=bool,
+                        default=False,
+                        help='Option to save whole sequence and'
+                        ' accompanying list of filenames as cache.'
+                        ' Ignored if --input-images-path points to a file.')
+    parser.add_argument('-l', '--list-filenames-path',
+                        type=str,
+                        help='Path to list of filenames in text file'
+                        ' to use (optional) if loading cached image stack,'
+                        ' to identify frames within the stack.'
+                        'If a cached stack is used and no filename list is'
+                        ' provided, image numbers will start from 0'
+                        ' in the output.')
+    parser.add_argument('-o', '--output-path',
                         type=str,
                         default=default_out_dir_arg,
-                        help='Path to output directory.')
+                        help='Path to output directory for extracted events,'
+                        ' created if necessary.')
     parser.add_argument('-t', '--threshold',
                         type=float,
                         default=40,
@@ -98,27 +115,28 @@ def sortimagenames_by_num(filename_list):
 def main():
     """Extract chosen sequences and save."""
     # Get and display inputs
-    default_out_dir_arg = '<parent of input-dir>/<input-dir>_events_<params>'
+    default_out_dir_arg = \
+        '<input-path.parent>/<input-path.name>_<length of sequence>frames_events_<params>'
     user_inputs = get_inputs(default_out_dir_arg)
 
-    input_dir = Path(user_inputs.input_dir)
-    output_dir = user_inputs.output_dir
+    input_path = Path(user_inputs.input_path)
+    output_path = user_inputs.output_path
     threshold = user_inputs.threshold
     before = user_inputs.before
     after = user_inputs.after
 
-    if output_dir == default_out_dir_arg:
-        output_dir = input_dir.parent / (
-            input_dir.name + f'_events_th{threshold}_b{before}_a{after}')
+    if output_path == default_out_dir_arg:
+        output_path = input_path.parent / (
+            input_path.name + f'_events_th{threshold}_b{before}_a{after}')
     else:
-        output_dir = Path(output_dir)
+        output_path = Path(output_path)
 
     try:
-        output_dir.mkdir(parents=True, exist_ok=False)
+        output_path.mkdir(parents=True, exist_ok=False)
     except FileExistsError:
         print('\nThe output directory already exists'
               ' and you may be overwriting or confusing data:'
-              f'\n({output_dir})')
+              f'\n({output_path})')
         continue_decision = None
         while continue_decision != 'y' and continue_decision != 'n':
             continue_decision = input('\nDo you want to continue? y/n: ')
@@ -129,13 +147,13 @@ def main():
                 sys.exit()
 
     print('')
-    print(f'Using files from {input_dir}.')
-    print(f'Saving extracted sequences in {output_dir}.')
+    print(f'Using files from {input_path}.')
+    print(f'Saving extracted sequences in {output_path}.')
     print('')
 
     # Get sorted filenames, no extension
     filename_list = []
-    for child in input_dir.iterdir():
+    for child in input_path.iterdir():
         filename_list.append(child.stem)
         # print(child.stem)
     filename_num_dict, filename_list = sortimagenames_by_num(filename_list)
@@ -147,12 +165,12 @@ def main():
 
     ## Load sorted images into image stack
     # First get image dimensions
-    image0 = imread(input_dir / (filename_list[0] + '.tiff'))
+    image0 = imread(input_path / (filename_list[0] + '.tiff'))
     print(f'Single-image dimensions are: {image0.shape}')
     input_seq = np.zeros((len(filename_list), image0.shape[0], image0.shape[1]))
     print('Loading images to find events...')
     for i in tqdm(range(input_seq.shape[0]), mininterval=1):
-        input_seq[i, :, :] = imread(input_dir / (filename_list[i] + '.tiff'))
+        input_seq[i, :, :] = imread(input_path / (filename_list[i] + '.tiff'))
 
     # Find and save desired sequences
     print('\nExtracting events...')
@@ -166,7 +184,7 @@ def main():
             start_frame_name = filename_list[start_frame]
             last_frame_num = filename_num_dict[filename_list[last_frame]]
             outname = f'{start_frame_name}-{last_frame_num}.tiff'
-            imsave(output_dir / outname, short_seq)
+            imsave(output_path / outname, short_seq)
             i = i + after
             progress_bar.update(after)
         else:
