@@ -39,12 +39,17 @@ def get_inputs(default_out_dir_arg):
                         help='Path to input directory of single images'
                         ' (directory) or to cached sequence in an image'
                         ' stack (file).')
-    parser.add_argument('-c', '--cache-sequence',
+    parser.add_argument('--cache-save',
                         type=bool,
                         default=False,
-                        help='Option to save whole sequence and'
-                        ' accompanying list of filenames as cache.'
-                        ' Ignored if --input-images-path points to a file.')
+                        help='Option to save whole sequence as cache,'
+                        'for faster testing of event extraction parameters.')
+    parser.add_argument('--cache-use',
+                        type=bool,
+                        default=True,
+                        help='Option to use cached sequence file,'
+                        ' rather than load input images separately.'
+                        '\n Needs to be ??????? and contain ???????. ')
     parser.add_argument('-l', '--list-filenames-path',
                         type=str,
                         help='Path to list of filenames in text file'
@@ -118,7 +123,6 @@ def main():
     default_out_dir_arg = \
         '<input-path.parent>/<input-path.name>_<length of sequence>frames_events_<params>'
     user_inputs = get_inputs(default_out_dir_arg)
-
     input_path = Path(user_inputs.input_path)
     output_path = user_inputs.output_path
     threshold = user_inputs.threshold
