@@ -106,7 +106,8 @@ class ExtractEventsGUI:
         self.extract_button = tk.Button(
             window, text="Run event extraction", command=self.extract_events)
         self.extract_button.pack()
-        self.prog_bar_label = tk.Label()
+        self.prog_bar_label = tk.Label(text="")
+        self.prog_bar_label.pack()
         self.prog_bar_len = 300
 
     def warn_no_image_seq(self):
@@ -192,14 +193,12 @@ class ExtractEventsGUI:
         after = int(self.frames_after_entry.get())
 
         # Set up progress bar
-        self.prog_bar_label.config(text=f'0 / {num_frames}')
-        self.prog_bar_label.pack()
         self.progbar = Progressbar(self.window,
                                length=self.prog_bar_len,
                                mode='determinate')
         self.progbar.pack()
 
-        count_updates = 1
+        count_updates = 0
         frames_between_updates = 500
 
         assert frames_between_updates > after, 'frames_between_updates must be > after'
@@ -220,7 +219,7 @@ class ExtractEventsGUI:
             else:
                 i = i + 1
 
-            # Update progress bar
+            # Update progress bar and text
             if i > count_updates * frames_between_updates:
                 time_elapsed = int(time.time() - start_time)
                 total_time_estimate = int(time_elapsed / i * num_frames )
