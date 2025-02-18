@@ -2,24 +2,29 @@
 
 ExtractEvents is a Python library for extracting set of useful frames from longer timelapse sequences.
 
+## Platform
+
+It may only work on Windows, currently (developed on Windows 10).
+
 ## Installation
 
 * Download or clone this repository
 * Install Miniconda (anaconda.org/downloads)
 * Create environment
   * In a Miniconda prompt, Navigate to your local copy of this repository
-  * `conda env create -f environment.yml`
+  * Enter `conda env create -f environment.yml`
     * You can ignore a message containing ```FutureWarning: `remote_definition` is deprecated``` if one appears.
 
 ## Usage
 
 * Activate environment
-  * `conda activate extractevents`
+  * In Miniconda, enter `conda activate extractevents`
 
 ### From a directory containing one tiff file per image, extract sequences around a frame containing a pixel brighter than a threshold value
-* In a Minicaonda prompt, navigate to this local repository
-* `python abovethreshold.py -h` to see command options.
-* e.g. `python abovethreshold.py -i <input_path>` to extract sequences from files in input_path to default output path.
+* In a Miniconda prompt, navigate to this local repository
+* `python extractevents.py` to run the GUI for extracting events
+* Downloading ImageJ for running useful commands with PyImageJ will take some time on the first run of your installation.
+* Within a GUI session, second and subsequent runs of the event extraction step are faster than the first.
 
 ## Contributing
 
