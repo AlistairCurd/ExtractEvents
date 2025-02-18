@@ -4,7 +4,7 @@ ExtractEvents is a Python library for extracting set of useful frames from longe
 
 ## Platform
 
-It may only work on Windows, currently (developed on Windows 10).
+May only work on Windows, currently (developed on Windows 10).
 
 ## Installation
 
