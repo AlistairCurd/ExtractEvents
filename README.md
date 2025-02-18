@@ -1,6 +1,6 @@
 # ExtractEvents
 
-ExtractEvents is a Python library for extracting set of useful frames from longer timelapse sequences.
+ExtractEvents is a Python library for extracting sets of useful frames from longer timelapse sequences.
 
 ## Platform
 
@@ -22,9 +22,17 @@ May only work on Windows, currently (developed on Windows 10).
 
 ### From a directory containing one tiff file per image, extract sequences around a frame containing a pixel brighter than a threshold value
 * In a Miniconda prompt, navigate to this local repository
-* `python extractevents.py` to run the GUI for extracting events
-* Downloading ImageJ for running useful commands with PyImageJ will take some time on the first run of your installation.
-* Within a GUI session, second and subsequent runs of the event extraction step are faster than the first.
+* Enter `python extractevents.py` to run the GUI for extracting events
+* In the GUI:
+  * Select an input directory
+  * In the text fields in the GUI, set threshold grey level to trigger subsequence extraction, and frames to include before and after trigger, or leave as defaults
+  * Select an *empty* output directory
+  * Run event extraction
+* The input sequence remains ready for another run with different parameters, if desired (the output directory must be emptied or changed)
+
+### Timings
+* Downloading ImageJ for running useful commands with PyImageJ will take some time on the first run of your installation (this is an automatic and necessary part of setting up the software).
+* Within a GUI session, second and subsequent runs of the event extraction step are faster than the first, for the same input image sequence.
 
 ## Contributing
 
